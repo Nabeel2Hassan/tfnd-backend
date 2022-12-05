@@ -7,6 +7,12 @@ const logger = require("morgan");
 const cors = require("cors");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const businessRouter = require("./routes/business");
+const eventRouter = require("./routes/events");
+const authRouter = require("./routes/auth");
+const subscriptionRouter = require("./routes/subscriptions");
+const paymentMethodRouter = require("./routes/paymentMethods");
+
 const con = require("./config/connection");
 
 const app = express();
@@ -25,6 +31,13 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/user", usersRouter);
+app.use("/business", businessRouter);
+app.use("/event", eventRouter);
+app.use("/auth", authRouter);
+app.use("/subscription", subscriptionRouter);
+app.use("/payment-method", paymentMethodRouter);
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

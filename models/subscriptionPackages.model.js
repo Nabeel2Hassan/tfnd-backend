@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
 
 var SubscriptionPackageSchema = mongoose.Schema({
+  stripe_price_id: { type: String },
   title: { type: String, required: true },
   desc: { type: String, required: true },
   status: { type: String, required: true }, // popular, very popular, most popular
   months: { type: String, required: true },
   type: { type: String, required: true }, // monthly , lifetime,
   price: { type: String, required: true },
-  currency: { type: String, required: true }
+  currency: { type: String, required: true },
 });
 
-var subscriptionPackage = mongoose.model("SubscriptionPackage", SubscriptionPackageSchema);
+var subscriptionPackage = mongoose.model(
+  "SubscriptionPackage",
+  SubscriptionPackageSchema
+);
 
 module.exports = subscriptionPackage;
 // title: "Basic Package",
