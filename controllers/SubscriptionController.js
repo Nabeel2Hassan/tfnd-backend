@@ -192,19 +192,21 @@ exports.stripeWebhook = async function (req, res, next) {
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     const sig = req.headers["stripe-signature"];
+    let { type , data }= req.body;
     console.log("event body is");
-    console.log(req.body);
-    let event;
+    console.log("Request :" ,{type , data } );
+    let event = req.body;
 
-    try {
-      event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
-    } catch (err) {
-      console.error(err);
-      res.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
+    // try {
+    //   event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+    // } catch (err) {
+    //   console.error(err);
+    //   res.status(400).send(`Webhook Error: ${err.message}`);
+    //   return;
+    // }
 
     // Handle the event
+    console.log("event type is", event.type);
     switch (event.type) {
       case "charge.captured": {
         const charge = event.data.object;
@@ -354,7 +356,7 @@ exports.stripeWebhook = async function (req, res, next) {
     res.status(200).json({
       success: 1,
       message: "Stripe webhook event received successfully.",
-      data: subscriptionModel,
+      data: 'Webhook response',
     });
   } catch (error) {
     console.log("Error while stripe webhook event", error);

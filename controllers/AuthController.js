@@ -251,7 +251,7 @@ exports.sendToken = async function (req, res, next) {
 
   await sendMail(user.email, "Password Reset", token);
 
-  res.status(200).send("Token sent to email");
+  res.status(200).send({ message : "Token sent to email" , success : 1 , data : {} });
 };
 
 exports.verifyToken = async function (req, res, next) {
@@ -270,7 +270,7 @@ exports.verifyToken = async function (req, res, next) {
 
 exports.verifyAndUpdatePassword = async function (req, res, next) {
   let user = await UserModel.findOne({ email: req.body.email });
-  if (!user.resetToken) return res.status(400).send("Invalid token or expired");
+  if (!user.resetToken) return res.status(400).send({ success : 0 , message : "Invalid token or expired" , error : "Error occured invalid token or expired" , data : null });
 
   let token = req.params.token;
 
@@ -290,6 +290,6 @@ exports.verifyAndUpdatePassword = async function (req, res, next) {
       { ReturnDocument: "after" }
     );
     console.log(data);
-    res.status(200).send("password updated successfully");
-  } else res.status(400).send("Invalid token or expired");
+    res.status(200).send({ data : {}  , success : 1, message : "Password updated successfully" , error : null });
+  } else res.status(400).send({ data : null , success : 0 , message : "Invalid token or expired", error : "Invalid token posted" });
 };
