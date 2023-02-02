@@ -61,7 +61,7 @@ exports.createSubscription = async function (req, res, next) {
   try {
     const id = req.user.id;
     const user = await UserModel.findById({ _id: id });
-
+    console.log('here is req user', req.user, 'here is the user,', user)
     const subscription = await stripe.subscriptions.create({
       customer: user.stripe_customer_id,
       default_payment_method: user.credit_card_secret,
