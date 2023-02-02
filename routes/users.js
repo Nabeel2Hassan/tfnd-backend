@@ -44,7 +44,7 @@ router.post('/register', async (req, res, next) => {
     }
     const token = jwt.sign(
       {
-        email: isEmailExist.email,
+        email: email,
         id: isEmailExist._id,
       },
       process.env.secretKey,
