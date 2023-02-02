@@ -34,7 +34,9 @@ exports.packages = async function (req, res, next) {
 exports.setupIntent = async function (req, res, next) {
   try {
     const id = req.user.id;
+    console.log('here is req', req.user)
     const user = await UserModel.findById({ _id: id });
+    console.log('Here is user', user);
     const setupIntent = await stripe.setupIntents.create({
       customer: user.stripe_customer_id,
       payment_method_types: ["card"],
