@@ -28,12 +28,16 @@ router.post('/register', async (req, res, next) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
     // return res.json({ "Here is passs": hashPassword })
+    const customer = await stripe.customers.create({
+      email: email.toLowerCase(),
+    });
     const userModel = await UserModel.create({
       firstName,
       lastName,
       email: email.toLowerCase(),
       password: hashPassword,
-      phoneNo
+      phoneNo,
+      stripe_customer_id:customer.id
     });
     if (!userModel) {
       return res.json({
