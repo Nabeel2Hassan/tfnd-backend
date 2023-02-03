@@ -104,9 +104,9 @@ router.post("/adminLogin", (req, res) => {
               },
               process.env.secretKey,
               // {
-                // expiresIn: "1h",
-                // expiresIn: 60, // in seconds 2mins
-                // expiresIn: 420, // in seconds 7mins
+              // expiresIn: "1h",
+              // expiresIn: 60, // in seconds 2mins
+              // expiresIn: 420, // in seconds 7mins
               // }
             );
             return res.status(200).json({
@@ -144,8 +144,8 @@ router.get("/auth", function (req, res) {
       },
       process.env.secretKey,
       // {
-        // expiresIn: 420, // 7 min
-        // expiresIn: "1h", // 7 min
+      // expiresIn: 420, // 7 min
+      // expiresIn: "1h", // 7 min
       // }
     );
     res.status(200).json({
@@ -187,7 +187,8 @@ router.post("/addCategory", CheckAuth, (req, res) => {
 
 router.get("/getCategory", CheckAuth, (req, res) => {
   try {
-    CategoryModel.find()
+    const { type } = req.query || 1;
+    CategoryModel.find({ type: type })
       .exec()
       .then((result) => {
         res.status(200).json({
@@ -339,6 +340,70 @@ router.get("/getBusiness", CheckAuth, (req, res) => {
   }
 });
 
+router.get("/getBusiness/details/:id", CheckAuth, (req, res) => {
+  try {
+    const { id } = req.params;
+    BusinessModel.findOne({ _id: id })
+      .populate("category")
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          success: 1,
+          message: "Business  fetched successfully",
+          data: result,
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: 0,
+          message: "Error while fetching business",
+          data: [],
+          error: err.message,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: 0,
+      message: "Error while fetching business",
+      data: [],
+      error: error.message,
+    });
+  }
+});
+
+router.get('/search/business', CheckAuth, async (req, res) => {
+  try {
+    const { _search } = req.query;
+    if (!_search) {
+      return res.json({
+        success: 0,
+        message: "_search is Required",
+        data: {},
+      })
+    }
+    let filteredData = await BusinessModel.find({}).populate({
+      path: 'category',
+      match: { name: { $regex: `${_search}`, $options: 'i' }},
+      required: true
+    }).exec();
+
+    filteredData = filteredData.length && filteredData.map(item => item.category != null && item);
+    return res.status(200).json({
+      success: 1,
+      message: "Business list fetched successfully",
+      data: filteredData.length ? filteredData.filter(Boolean) : [],
+    });
+  } catch (error) {
+    console.log("ERROR while searching Business", error);
+    return res.json({
+      success: 0,
+      message: "Internal Server Error!",
+      data: {},
+      error: error
+    })
+  }
+})
+
 // not Working now ASK ALi about it
 router.put("/updateBusiness", CheckAuth, (req, res) => {
   try {
@@ -446,7 +511,7 @@ router.post("/addEvent", CheckAuth, upload.single("eventImage"), (req, res) => {
 
 router.get("/getEvent", CheckAuth, (req, res) => {
   try {
-    EventModel.find()
+    EventModel.find().populate('category')
       .exec()
       .then((result) => {
         res.status(200).json({
@@ -502,5 +567,69 @@ router.delete("/deleteEvent", CheckAuth, (req, res) => {
     });
   }
 });
+
+router.get("/getEvents/details/:id", CheckAuth, (req, res) => {
+  try {
+    const { id } = req.params;
+    EventModel.findOne({ _id: id })
+      .populate("category")
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          success: 1,
+          message: "Event  fetched successfully",
+          data: result,
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          success: 0,
+          message: "Error while fetching events",
+          data: [],
+          error: err.message,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: 0,
+      message: "Error while fetching events",
+      data: [],
+      error: error.message,
+    });
+  }
+});
+
+router.get('/search/events', CheckAuth, async (req, res) => {
+  try {
+    const { _search } = req.query;
+    if (!_search) {
+      return res.json({
+        success: 0,
+        message: "_search is Required",
+        data: {},
+      })
+    }
+    let filteredData = await EventModel.find({}).populate({
+      path: 'category',
+      match: { name: { $regex: `${_search}`, $options: 'i' }},
+      required: true
+    }).exec();
+    filteredData = filteredData.length && filteredData.map(item => item.category != null && item);
+    return res.status(200).json({
+      success: 1,
+      message: "Events list fetched successfully",
+      data: filteredData.length ? filteredData.filter(Boolean) : [],
+    });
+
+  } catch (error) {
+    console.log("ERROR while searching Events", error);
+    return res.json({
+      success: 0,
+      message: "Internal Server Error!",
+      data: {},
+      error: error
+    })
+  }
+})
 // Event CRUD Ends
 module.exports = router;
