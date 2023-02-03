@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const UserModel = require("../models/user.model");
+const UserSubscription = require("../models/subscriptions.model");
 const jwt = require("jsonwebtoken");
 const CheckAuth = require("../middleware/check.auth.admin");
 const multer = require("multer");
@@ -54,7 +55,7 @@ exports.signup = async function (req, res, next) {
     }
     const hashPassword = await bcrypt.hash(password, 10);
     // return res.json({ "Here is passs": hashPassword })
-    
+
     const customer = await stripe.customers.create({
       email: email.toLowerCase(),
     });
@@ -64,7 +65,7 @@ exports.signup = async function (req, res, next) {
       email: email.toLowerCase(),
       password: hashPassword,
       phoneNo,
-      stripe_customer_id:customer.id
+      stripe_customer_id: customer.id
     });
     if (!userModel) {
       return res.json({
@@ -146,16 +147,16 @@ exports.login = async function (req, res, next) {
 exports.profile = async function (req, res, next) {
   const id = req.user.id;
   console.log("Id : ", id);
-  UserModel.findOne({ _id: id }, function (err, docs) {
-    console.log("The data is:", docs);
-    if (err) {
-      console.log("Error id :", err);
-      res.status(501).json({
-        error: err,
-      });
-    }
-    var data = docs;
-    res.status(200).json(docs);
+  const userInfo = await UserModel.findOne({ _id: id }).lean();
+  const userSub = await UserSubscription.findOne({ user_id: id }).lean();
+  return res.json({
+    success: 1,
+    message: "User info is fetched Successfully.",
+    data: {
+      ...userInfo, ...userSub
+    },
+    // })
+    // res.status(200).json(docs);
   });
 };
 
