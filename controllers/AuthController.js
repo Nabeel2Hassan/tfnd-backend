@@ -148,7 +148,11 @@ exports.profile = async function (req, res, next) {
   const id = req.user.id;
   console.log("Id : ", id);
   const userInfo = await UserModel.findOne({ _id: id }).lean();
-  const userSub = await UserSubscription.findOne({ user_id: id }).lean();
+  const userSub = await UserSubscription.findOne({ user_id: id }).populate({
+    path: 'subscription_package_id',
+    module: 'SubscriptionPackage',
+    required: true,
+  }).lean();
   return res.json({
     success: 1,
     message: "User info is fetched Successfully.",
